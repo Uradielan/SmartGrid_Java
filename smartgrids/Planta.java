@@ -114,6 +114,10 @@ public abstract class Planta {
     	return false;
     }
     
+    public String fuentePrimaria( ) { //default, despues plantarenovable lo sobreescribe.
+		throw new UnsupportedOperationException("La planta no es renovable.");
+    }
+    
     public String detalle() { //detalle es lo que devuelve consultarPlanta. devuelve nombre, su estado y fechaFuncionamiento.
     	
     	String estadoTexto;
