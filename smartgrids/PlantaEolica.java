@@ -46,12 +46,19 @@ public class PlantaEolica extends PlantaRenovable {
     public double vientoMinimo() {
 		return vientoMinimo;
 	}
-    
+
+    //MONITOREO======================
+    @Override
+    public void registrarMonitoreoEolico(LocalDateTime fechaHora, double energia, int incidencias,
+            double velocidadViento) {
+    	agregarMonitoreo(new MonitoreoEolico(fechaHora, energia, incidencias, velocidadViento));
+    }
+    //MONITOREO======================
 
     @Override
     public String toString() {
-		return super.toString() + "Cantidad de aerogeneradores: " + cantidadAerogeneradores + 
-								  " Altura de torres: " + alturaTorres +
-								  " Viento minimo: " + vientoMinimo;
+		return super.toString() + "-Cantidad de aerogeneradores: " + cantidadAerogeneradores + 
+								  " -Altura de torres: " + alturaTorres +
+								  " -Viento minimo: " + vientoMinimo;
     }
 }

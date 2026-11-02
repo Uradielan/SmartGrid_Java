@@ -38,6 +38,13 @@ public class PlantaHidraulica extends PlantaRenovable {
 		return capacidadEmbalse;
 	}
 
+    //MONITOREO======================
+    @Override
+    public void registrarMonitoreo(LocalDateTime fechaHora, double energia, int incidencias) {
+    	agregarMonitoreo(new Monitoreo(fechaHora, energia, incidencias));
+    }
+    //MONITOREO======================
+    
     @Override
     public String toString() {
 		return super.toString() + "-Cantidad de turbinas: " + cantidadTurbinas + 

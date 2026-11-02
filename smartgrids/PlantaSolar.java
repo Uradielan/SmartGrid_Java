@@ -24,7 +24,7 @@ public class PlantaSolar extends PlantaRenovable {
 			throw new IllegalArgumentException("Necesita tener superficie cubierta.");
 		}
 		if (cantidadPaneles <= 0) {
-			throw new IllegalArgumentException("Necesita hacer al menos un panel.");
+			throw new IllegalArgumentException("Necesita tener al menos un panel.");
 		}
 		if (horasRadiacion < 0 || horasRadiacion > 24) {
 			throw new IllegalArgumentException("Las horas de radiacion no son validas.");
@@ -52,11 +52,19 @@ public class PlantaSolar extends PlantaRenovable {
 
 		return capacidadMaxima() * eficienciaPromedio() * horasRadiacion / 24;
     }
+    
+    //MONITOREO======================
+    @Override
+    public void registrarMonitoreo(LocalDateTime fechaHora, double energia, int incidencias) {
+    	agregarMonitoreo(new Monitoreo(fechaHora, energia, incidencias));
+    }
+    //MONITOREO======================
+
 
     @Override
     public String toString() {
-		return super.toString() + "Superficie Cubierta: " + superficieCubierta + 
-								  " Cantidad de paneles: " + cantidadPaneles +
-								  " Horas de radiacion: " + horasRadiacion;
+		return super.toString() + "-Superficie Cubierta: " + superficieCubierta + 
+								  " -Cantidad de paneles: " + cantidadPaneles +
+								  " -Horas de radiacion: " + horasRadiacion;
     }
 }

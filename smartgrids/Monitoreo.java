@@ -42,9 +42,9 @@ public class Monitoreo {
 		return incidencias;
 	}
 	
-	//public sinDatos(){
-	//	return energiaGenerada == 0 && incidencias == 0;
-	//}
+	public boolean sinDatos(){
+		return energiaGenerada == 0 && incidencias == 0;
+	}
 	
     @Override
     public String toString() {

@@ -56,10 +56,22 @@ public class PlantaTermica extends Planta {
 		return capacidadMaxima() / 2;
 	}
 
+    //MONITOREO======================
+    @Override
+    public void registrarMonitoreoTermico(LocalDateTime fechaHora, double energia, int incidencias,
+    		double co2, double combustible) {
+    	if (combustible > almacenamiento) {
+			throw new IllegalArgumentException("El combustible no puede superar la capacidad de alacenamiento");
+    	}
+    	
+    	agregarMonitoreo(new MonitoreoTermico(fechaHora, energia, incidencias, co2, combustible));
+    }
+    //MONITOREO======================
+
     @Override
     public String toString() {
-		return super.toString() + "Tipo de combustible: " + tipoCombustible + 
-								  " Objetivo de emisiones de CO2: " + objetivoCO2 +
-								  " Almacenamiento: " + almacenamiento;
+		return super.toString() + "-Tipo de combustible: " + tipoCombustible + 
+								  " -Objetivo de emisiones de CO2: " + objetivoCO2 +
+								  " -Almacenamiento: " + almacenamiento;
     }
 }

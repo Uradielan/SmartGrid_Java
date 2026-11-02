@@ -130,6 +130,62 @@ public abstract class Planta {
     	
     }
     
+    //MONITOREOS================================================================================================================
+    protected void agregarMonitoreo(Monitoreo monitoreo) { //guarda un monitoreo.
+    	
+    	LocalDateTime fh = monitoreo.fechaHora(); //fechaHora
+    	
+    	if (!activa) {
+    		throw new IllegalStateException("No se puede monitorear, la planta esta inactiva.");
+    	}
+    	
+    	if (fh.isBefore(fechaFuncionamiento)){
+    		throw new IllegalStateException("Fecha invalida, es anterior al funcionamiento de la planta.");
+    	}
+    	if (monitoreos.containsKey(fh)) {
+    		throw new IllegalStateException("Ya hay un monitoreo en esa fecha y hora.");
+    	}
+    	if (monitoreo.energiaGenerada() > capacidadMaxima) {
+    		throw new IllegalStateException("La energia generada no puede ser mayor a la capacidad maxima.");
+    	}
+    	
+    	monitoreos.put(fh, monitoreo);
+    	
+    }
+    
+    //Por default ninguna planta acepta monitoreos. Cada subclase redefine su monitoreo.
+    public void registrarMonitoreo(LocalDateTime fechaHora, double energia, int incidencias) {
+        throw new UnsupportedOperationException("Esta planta no acepta monitoreos comunes.");
+    }
+
+    public void registrarMonitoreoEolico(LocalDateTime fechaHora, double energia, int incidencias,
+                                         double velocidadViento) {
+        throw new UnsupportedOperationException("Esta planta no acepta monitoreos eolicos.");
+    }
+
+    public void registrarMonitoreoTermico(LocalDateTime fechaHora, double energia, int incidencias,
+                                          double co2, double combustible) {
+        throw new UnsupportedOperationException("Esta planta no acepta monitoreos termicos.");
+    }
+    //MONITOREOSX===============================================================================================================
+
+    public double totalGenerado() {
+        double total = 0; //recorro todos los monitoreos. Voy sumando sus energias al total.
+        for (Monitoreo m : monitoreos.values()) {
+            total += m.energiaGenerada();
+        }
+        return total;
+    }
+    
+    public int[] incidenciasPorHora() {
+    	int[] porHora = new int[24]; //veo la fecha del monitoreo, agarro la hora y sumo las incidencias de ESA hora. Por todas las horas.
+        for (Monitoreo m : monitoreos.values()) {
+            porHora[m.fechaHora().getHour()] += m.incidencias(); //sumo 
+        }
+        return porHora;
+
+    }
+
     @Override
     public String toString() {
     	return detalle() + " -Direccion: " + direccion
