@@ -1,5 +1,5 @@
 package smartgrids;
-
+//Hola
 public class CodigoCliente {
 
     private static final String INICIO = "2026-10-08T00:00:00";
