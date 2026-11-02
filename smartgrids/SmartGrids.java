@@ -25,7 +25,7 @@ import java.util.TreeMap;
  */
 public class SmartGrids implements ISmartGrids {
 
-    //private LinkedHashMap<String, Planta> plantas;
+    private LinkedHashMap<String, Planta> plantas = new LinkedHashMap<>();
 
     public SmartGrids() {
         //plantas = new LinkedHashMap<>();
@@ -74,38 +74,63 @@ public class SmartGrids implements ISmartGrids {
     public void registrarPlantaSolar(String nombre, String direccion, double capacidadMaxima,
             String fechaHoraPuestaEnFuncionamiento, String fuentePrimaria, double eficienciaPromedio,
             double superficieCubierta, int cantidadPaneles, double horasRadiacionDiaria) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'registrarPlantaSolar'");
+
+        Planta planta = new PlantaSolar(nombre, direccion, capacidadMaxima,
+                fechaHora(fechaHoraPuestaEnFuncionamiento).toLocalDate(), fuentePrimaria, eficienciaPromedio,
+                superficieCubierta, cantidadPaneles, horasRadiacionDiaria);
+
+        if (plantas.containsKey(planta.nombre())) {
+            throw new IllegalArgumentException("Ya existe una planta con el nombre: " + planta.nombre());
+        }
+        plantas.put(planta.nombre(), planta);
     }
 
     @Override
     public void registrarPlantaEolica(String nombre, String direccion, double capacidadMaxima,
             String fechaHoraPuestaEnFuncionamiento, String fuentePrimaria, double eficienciaPromedio,
             int cantidadAerogeneradores, double alturaTorres, double velocidadMinimaViento) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'registrarPlantaEolica'");
+        Planta planta = new PlantaEolica(nombre, direccion, capacidadMaxima,
+                fechaHora(fechaHoraPuestaEnFuncionamiento).toLocalDate(), fuentePrimaria, eficienciaPromedio,
+                cantidadAerogeneradores, alturaTorres, velocidadMinimaViento);
+        if (plantas.containsKey(planta.nombre())) {
+            throw new IllegalArgumentException("Ya existe una planta con el nombre: " + planta.nombre());
+        }
+        plantas.put(planta.nombre(), planta);
     }
 
     @Override
     public void registrarPlantaHidraulica(String nombre, String direccion, double capacidadMaxima,
             String fechaHoraPuestaEnFuncionamiento, String fuentePrimaria, double eficienciaPromedio,
             int cantidadTurbinas, double capacidadEmbalse) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'registrarPlantaHidraulica'");
+        Planta planta = new PlantaHidraulica(nombre, direccion, capacidadMaxima,
+                fechaHora(fechaHoraPuestaEnFuncionamiento).toLocalDate(), fuentePrimaria, eficienciaPromedio,
+                cantidadTurbinas, capacidadEmbalse);
+        if (plantas.containsKey(planta.nombre())) {
+            throw new IllegalArgumentException("Ya existe una planta con el nombre: " + planta.nombre());
+        }
+        plantas.put(planta.nombre(), planta);
     }
 
     @Override
     public void registrarPlantaTermica(String nombre, String direccion, double capacidadMaxima,
             String fechaHoraPuestaEnFuncionamiento, String tipoCombustible, double objetivoEmisionesCo2PorHora,
             double capacidadAlmacenamientoCombustible) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'registrarPlantaTermica'");
+        Planta planta = new PlantaTermica(nombre, direccion, capacidadMaxima,
+                fechaHora(fechaHoraPuestaEnFuncionamiento).toLocalDate(), tipoCombustible,
+                objetivoEmisionesCo2PorHora, capacidadAlmacenamientoCombustible);
+        if (plantas.containsKey(planta.nombre())) {
+            throw new IllegalArgumentException("Ya existe una planta con el nombre: " + planta.nombre());
+        }
+        plantas.put(planta.nombre(), planta);
     }
 
     @Override
     public List<String> consultarPlantas() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'consultarPlantas'");
+        List<String> lista = new ArrayList<>();
+        for (Planta planta : this.plantas.values()) {
+            lista.add(planta.toString());
+        }
+        return lista;
     }
 
     @Override
@@ -116,46 +141,67 @@ public class SmartGrids implements ISmartGrids {
 
     @Override
     public void activarPlanta(String nombre, String fechaHora) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'activarPlanta'");
+
+        Planta planta = this.plantas.get(nombre);
+        if (planta == null) {
+            throw new IllegalArgumentException("La planta no existe: " + nombre);
+        }
+        planta.cambiarEstado(true);
+
     }
 
     @Override
     public void desactivarPlanta(String nombre, String fechaHora) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'desactivarPlanta'");
+
+        Planta planta = this.plantas.get(nombre);
+        if (planta == null) {
+            throw new IllegalArgumentException("La planta no existe: " + nombre);
+        }
+        planta.desactivar(fechaHora(fechaHora));
     }
 
     @Override
     public boolean estaActiva(String nombre) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'estaActiva'");
+        Planta planta = this.plantas.get(nombre);
+        return planta != null && planta.consultarEstado();
     }
 
     @Override
     public void registrarMonitoreo(String nombre, String fechaHora, double energiaGenerada, int incidencias) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'registrarMonitoreo'");
+        Planta planta = this.plantas.get(nombre);
+        if (planta == null) {
+            throw new IllegalArgumentException("La planta no existe: " + nombre);
+        }
+        planta.registrarMonitoreo(fechaHora(fechaHora), energiaGenerada, incidencias);
     }
 
     @Override
     public void registrarMonitoreo(String nombre, String fechaHora, double energiaGenerada, int incidencias,
             double velocidadViento) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'registrarMonitoreo'");
+        Planta planta = this.plantas.get(nombre);
+        if (planta == null) {
+            throw new IllegalArgumentException("La planta no existe: " + nombre);
+        }
+        planta.registrarMonitoreoEolico(fechaHora(fechaHora), energiaGenerada, incidencias, velocidadViento);
     }
 
     @Override
     public void registrarMonitoreo(String nombre, String fechaHora, double energiaGenerada, int incidencias,
             double co2Emitido, double combustibleUtilizado) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'registrarMonitoreo'");
+        Planta planta = this.plantas.get(nombre);
+        if (planta == null) {
+            throw new IllegalArgumentException("La planta no existe: " + nombre);
+        }
+        planta.registrarMonitoreoTermico(fechaHora(fechaHora), energiaGenerada, incidencias, co2Emitido, combustibleUtilizado);
     }
 
     @Override
     public double totalGenerado(String nombre) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'totalGenerado'");
+        Planta planta = this.plantas.get(nombre);
+        if (planta == null) {
+            throw new IllegalArgumentException("La planta no existe: " + nombre);
+        }
+        return planta.totalGenerado();
     }
 
     @Override
@@ -172,8 +218,14 @@ public class SmartGrids implements ISmartGrids {
 
     @Override
     public Map<String, Integer> plantasRenovablesPorFuente() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'plantasRenovablesPorFuente'");
+        Map<String, Integer> resultado = new TreeMap<>();
+        for (Planta planta : plantas.values()) {
+            if (planta.esRenovable()) {
+                String fuente = planta.fuentePrimaria();
+                resultado.put(fuente, resultado.getOrDefault(fuente, 0) + 1);
+            }
+        }
+        return resultado;
     }
 
     @Override
@@ -184,14 +236,30 @@ public class SmartGrids implements ISmartGrids {
 
     @Override
     public String horasSinVelocidadMinimaPorPlantaEolica() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'horasSinVelocidadMinimaPorPlantaEolica'");
+        StringBuilder sb = new StringBuilder();
+        sb.append("Plantas Eolicas: Horas con poco viento\n");
+        for (Planta planta : plantas.values()) {
+            if (planta.esEolica()) {
+                List<Integer> horas = planta.horasSinVientoMinimo();
+                if (!horas.isEmpty()) {
+                    sb.append("- ").append(planta.nombre()).append(": ").append(((PlantaEolica) planta).vientoMinimo()).append(" m/s\n");
+                    for (Integer hora : horas) {
+                        sb.append("       ").append(String.format("%02d", hora)).append(": ")
+                                .append(((PlantaEolica) planta).horasSinVientoMinimo()).append(" m/s\n");
+                    }
+                }
+            }
+        }
+        return sb.toString();
     }
 
     @Override
     public int limpiarMonitoreosSinDatos() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'limpiarMonitoreosSinDatos'");
+        int totalEliminados = 0;
+        for (Planta planta : plantas.values()) {
+            totalEliminados += planta.limpiarMonitoreosSinDatos();
+        }
+        return totalEliminados;
     }
 
     @Override
@@ -206,207 +274,18 @@ public class SmartGrids implements ISmartGrids {
         throw new UnsupportedOperationException("Unimplemented method 'plantasInactivasEn'");
     }
 
-    // ------------------------------------------------- 1.a) registro
-
-    // @Override
-    // public void registrarPlantaSolar(String nombre, String direccion, double capacidadMaxima,
-    //         String fechaHoraPuestaEnFuncionamiento, String fuentePrimaria, double eficienciaPromedio,
-    //         double superficieCubierta, int cantidadPaneles, double horasRadiacionDiaria) {
-    //     agregar(new PlantaSolar(nombre, direccion, capacidadMaxima,
-    //             fechaHora(fechaHoraPuestaEnFuncionamiento), fuentePrimaria, eficienciaPromedio,
-    //             superficieCubierta, cantidadPaneles, horasRadiacionDiaria));
-    // }
-
-    // @Override
-    // public void registrarPlantaEolica(String nombre, String direccion, double capacidadMaxima,
-    //         String fechaHoraPuestaEnFuncionamiento, String fuentePrimaria, double eficienciaPromedio,
-    //         int cantidadAerogeneradores, double alturaTorres, double velocidadMinimaViento) {
-    //     agregar(new PlantaEolica(nombre, direccion, capacidadMaxima,
-    //             fechaHora(fechaHoraPuestaEnFuncionamiento), fuentePrimaria, eficienciaPromedio,
-    //             cantidadAerogeneradores, alturaTorres, velocidadMinimaViento));
-    // }
-
-    // @Override
-    // public void registrarPlantaHidraulica(String nombre, String direccion, double capacidadMaxima,
-    //         String fechaHoraPuestaEnFuncionamiento, String fuentePrimaria, double eficienciaPromedio,
-    //         int cantidadTurbinas, double capacidadEmbalse) {
-    //     agregar(new PlantaHidraulica(nombre, direccion, capacidadMaxima,
-    //             fechaHora(fechaHoraPuestaEnFuncionamiento), fuentePrimaria, eficienciaPromedio,
-    //             cantidadTurbinas, capacidadEmbalse));
-    // }
-
-    // @Override
-    // public void registrarPlantaTermica(String nombre, String direccion, double capacidadMaxima,
-    //         String fechaHoraPuestaEnFuncionamiento, String tipoCombustible,
-    //         double objetivoEmisionesCo2PorHora, double capacidadAlmacenamientoCombustible) {
-    //     agregar(new PlantaTermica(nombre, direccion, capacidadMaxima,
-    //             fechaHora(fechaHoraPuestaEnFuncionamiento), tipoCombustible,
-    //             objetivoEmisionesCo2PorHora, capacidadAlmacenamientoCombustible));
-    // }
-
-    // ------------------------------------------------- 1.b) consulta
-
-    // @Override
-    // public List<String> consultarPlantas() {
-    //     List<String> detalles = new ArrayList<>();
-    //     for (Planta planta : plantas.values()) {
-    //         detalles.add(planta.detalle());
-    //     }
-    //     return detalles;
-    // }
-
-    // ---------------------------------------------------------- 2)
-
-    // @Override
-    // public double capacidadMinimaCuota(String nombre) {
-    //     return buscar(nombre).cuotaEsperada();
-    // }
-
-    // ---------------------------------------------------------- 3)
-
-    // @Override
-    // public void activarPlanta(String nombre, String fechaHora) {
-    //     buscar(nombre).activar(fechaHora(fechaHora));
-    // }
-
-    // @Override
-    // public void desactivarPlanta(String nombre, String fechaHora) {
-    //     buscar(nombre).desactivar(fechaHora(fechaHora));
-    // }
-
-    // @Override
-    // public boolean estaActiva(String nombre) {
-    //     return buscar(nombre).estaActiva();
-    // }
-
-    // ---------------------------------------------------------- 4)
-
-    // @Override
-    // public void registrarMonitoreo(String nombre, String fechaHora, double energiaGenerada,
-    //         int incidencias) {
-    //     buscar(nombre).registrarMonitoreo(fechaHora(fechaHora), energiaGenerada, incidencias);
-    // }
-
-    // @Override
-    // public void registrarMonitoreo(String nombre, String fechaHora, double energiaGenerada,
-    //         int incidencias, double velocidadViento) {
-    //     buscar(nombre).registrarMonitoreoEolico(fechaHora(fechaHora), energiaGenerada,
-    //             incidencias, velocidadViento);
-    // }
-
-    // @Override
-    // public void registrarMonitoreo(String nombre, String fechaHora, double energiaGenerada,
-    //         int incidencias, double co2Emitido, double combustibleUtilizado) {
-    //     buscar(nombre).registrarMonitoreoTermico(fechaHora(fechaHora), energiaGenerada,
-    //             incidencias, co2Emitido, combustibleUtilizado);
-    // }
-
-    // ------------------------------------------------------ 5) a 7)
-
-    // @Override
-    // public double totalGenerado(String nombre) {
-    //     return buscar(nombre).totalGenerado();
-    // }
-
-    // @Override
-    // public int[] incidenciasPorHora(String nombre) {
-    //     return buscar(nombre).incidenciasPorHora();
-    // }
-
-    // @Override
-    // public int[] histogramaCumplimiento(String nombre, String fechaDesde, String fechaHasta) {
-    //     Planta planta = buscar(nombre);
-    //     return planta.histograma(fecha(fechaDesde), fecha(fechaHasta));
-    // }
-
-    // ---------------------------------------------------------- 8)
-
-    // @Override
-    // public Map<String, Integer> plantasRenovablesPorFuente() {
-    //     TreeMap<String, Integer> porFuente = new TreeMap<>();
-    //     for (Planta planta : plantas.values()) {
-    //         if (planta.esRenovable()) {
-    //             porFuente.merge(planta.fuentePrimaria(), 1, Integer::sum);
-    //         }
-    //     }
-    //     return porFuente;
-    // }
-
-    // ---------------------------------------------------------- 9)
-
-    // @Override
-    // public List<String> plantasQueNuncaCumplieronCuota() {
-    //     List<String> nombres = new ArrayList<>();
-    //     for (Planta planta : plantas.values()) {
-    //         if (planta.nuncaCumplioCuota()) {
-    //             nombres.add(planta.nombre());
-    //         }
-    //     }
-    //     return nombres;
-    // }
-
-    // --------------------------------------------------------- 10)
-
-    // @Override
-    // public String horasSinVelocidadMinimaPorPlantaEolica() {
-    //     StringBuilder sb = new StringBuilder("Plantas Eolicas: Horas con poco viento\n");
-    //     for (Planta planta : plantas.values()) {
-    //         sb.append(planta.detalleHorasConPocoViento());
-    //     }
-    //     return sb.toString();
-    // }
-
-    // --------------------------------------------------------- 11)
-
-    // @Override
-    // public int limpiarMonitoreosSinDatos() {
-    //     int eliminados = 0;
-    //     for (Planta planta : plantas.values()) {
-    //         eliminados += planta.limpiarMonitoreosSinDatos();
-    //     }
-    //     return eliminados;
-    // }
-
-    // --------------------------------------------------------- 12)
-
-    // @Override
-    // public List<String> plantasOrdenadasPorEnergiaGenerada() {
-    //     List<Planta> ordenadas = new ArrayList<>(plantas.values());
-    //     // List.sort es estable: ante empates se mantiene el orden de registro.
-    //     ordenadas.sort(Comparator.comparingDouble(Planta::totalGenerado).reversed());
-    //     List<String> resultado = new ArrayList<>();
-    //     for (Planta planta : ordenadas) {
-    //         resultado.add(planta.nombre() + ": " + planta.totalGenerado());
-    //     }
-    //     return resultado;
-    // }
-
-    // --------------------------------------------------------- 13)
-
-    // @Override
-    // public List<String> plantasInactivasEn(String fechaHora) {
-    //     LocalDateTime momento = fechaHora(fechaHora);
-    //     List<String> nombres = new ArrayList<>();
-    //     for (Planta planta : plantas.values()) {
-    //         if (planta.estuvoInactivaEn(momento)) {
-    //             nombres.add(planta.nombre());
-    //         }
-    //     }
-    //     return nombres;
-    // }
-
     // ------------------------------------------------------ toString
 
-    // @Override
-    // public String toString() {
-    //     StringBuilder sb = new StringBuilder();
-    //     sb.append("SmartGrids - plantas registradas: ").append(plantas.size()).append('\n');
-    //     if (plantas.isEmpty()) {
-    //         sb.append("  (sin plantas)\n");
-    //     }
-    //     for (Planta planta : plantas.values()) {
-    //         sb.append("  * ").append(planta);
-    //     }
-    //     return sb.toString();
-    // }
+    @Override
+    public String toString() {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("SmartGrids - plantas registradas: ").append(plantas.size()).append('\n');
+        if (plantas.isEmpty()) {
+            stringBuilder.append("  (sin plantas)\n");
+        }
+        for (Planta planta : plantas.values()) {
+            stringBuilder.append("  * ").append(planta);
+        }
+        return stringBuilder.toString();
+    }
 }
