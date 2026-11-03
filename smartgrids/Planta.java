@@ -9,18 +9,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import Cloude.smartgrids.PeriodoInactividad;
-
 public abstract class Planta {
-    protected String nombre;
-    protected String direccion;
-    protected double capacidadMaxima;
-    protected LocalDate fechaFuncionamiento;
-    protected boolean estado;
+    private String nombre;
+    private String direccion;
+    private double capacidadMaxima;
+    private LocalDateTime fechaFuncionamiento;
+    private boolean estado;
     protected HashMap<LocalDateTime, Monitoreo> monitoreos;
+    private ArrayList<PeriodoInactividad> periodosInactividad;
     private static final DateTimeFormatter FORMATO_FECHA = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 
-    public Planta(String nombre, String direccion, double capacidadMaxima, LocalDate fechaFuncionamiento) {
+    public Planta(String nombre, String direccion, double capacidadMaxima, LocalDateTime fechaFuncionamiento) {
         if (nombre == null || nombre.trim().isEmpty()) {
             throw new IllegalArgumentException("El nombre es obligatorio");
         }
@@ -39,6 +38,7 @@ public abstract class Planta {
         this.fechaFuncionamiento = fechaFuncionamiento;
         this.estado = true;
         this.monitoreos = new HashMap<>();
+        this.periodosInactividad = new ArrayList<>();
     }
 
     public String nombre() {
@@ -76,12 +76,13 @@ public abstract class Planta {
         throw new UnsupportedOperationException("Tipo de monitoreo no soportado para " + nombre);
     }
 
-    public void registrarMonitoreoEolico(LocalDateTime fechaHora, double energia, int incidencias, double velocidadViento) {
+    public void registrarMonitoreoEolico(LocalDateTime fechaHora, double energia, int incidencias,
+            double velocidadViento) {
         throw new UnsupportedOperationException("Monitoreo eólico no soportado para " + nombre);
     }
 
     public void registrarMonitoreoTermico(LocalDateTime fechaHora, double energia, int incidencias,
-                                          double co2, double combustible) {
+            double co2, double combustible) {
         throw new UnsupportedOperationException("Monitoreo térmico no soportado para " + nombre);
     }
 
@@ -103,24 +104,8 @@ public abstract class Planta {
         return m != null && cumpleCuota(m);
     }
 
-    public Map<Integer, Integer> histograma(LocalDate desde, LocalDate hasta) {
-        if (desde == null || hasta == null || desde.isAfter(hasta)) {
-            throw new IllegalArgumentException("Rango de fechas inválido");
-        }
-        Map<Integer, Integer> resultado = new TreeMap<>();
-        for (int hora = 0; hora < 24; hora++) {
-            resultado.put(hora, 0);
-        }
-        for (LocalDate dia = desde; !dia.isAfter(hasta); dia = dia.plusDays(1)) {
-            for (int hora = 0; hora < 24; hora++) {
-                LocalDateTime fh = dia.atTime(hora, 0);
-                Monitoreo m = monitoreos.get(fh);
-                if (m != null && cumpleCuota(m)) {
-                    resultado.put(hora, resultado.get(hora) + 1);
-                }
-            }
-        }
-        return resultado;
+    public Map<Integer, Integer> histograma(LocalDateTime desde, LocalDateTime hasta) {
+        throw new IllegalStateException("Falta implementar histograma en la clase hija correspondiente");
     }
 
     public boolean nuncaCumplioCuota() {
@@ -144,14 +129,32 @@ public abstract class Planta {
         throw new UnsupportedOperationException("La planta " + nombre + " no es eólica");
     }
 
-    public void desactivar(LocalDateTime fechaHora) {
-        if (fechaHora == null) {
-            throw new IllegalArgumentException("La fecha y hora es obligatoria");
+    public void desactivar(LocalDateTime momento) {
+
+        if (momento == null) {
+            throw new IllegalArgumentException("Se necesita un tiempo valido, fecha y hora.");
         }
         if (!estado) {
-            return;
+            throw new IllegalStateException("No se puede desactivar, ya esta inactiva.");
         }
+        if (momento.isBefore(fechaFuncionamiento)) {
+            throw new IllegalArgumentException("No se puede desactivar antes de que este funcionando.");
+        }
+
+        periodosInactividad.add(new PeriodoInactividad(momento)); // pum la desactivo.
         estado = false;
+    }
+
+    public void activar(LocalDateTime momento) {
+        if (momento == null) {
+            throw new IllegalArgumentException("Se necesita un tiempo valido, fecha y hora.");
+        }
+        if (estado) {
+            throw new IllegalStateException("No se puede activar, ya esta activa.");
+        }
+
+        ((PeriodoInactividad) periodosInactividad.get(periodosInactividad.size() - 1)).cerrar(momento);
+        estado = true;
     }
 
     public int limpiarMonitoreosSinDatos() {
@@ -167,9 +170,50 @@ public abstract class Planta {
         return eliminarDato.size();
     }
 
+    public boolean estuvoInactivaEn(LocalDateTime momento) { // estuvo inactiva a esta hora?
+        for (PeriodoInactividad p : periodosInactividad) {
+            if (p.contiene(momento)) { // Reviso todos los periodos de inactividad para ver si esta esa hora.
+                return true;
+            }
+        }
+        return false;
+    }
+
+    protected void agregarMonitoreo(Monitoreo monitoreo) { // guarda un monitoreo.
+
+        LocalDateTime fh = monitoreo.fechaHora(); // fechaHora
+
+        if (!estado) {
+            throw new IllegalStateException("No se puede monitorear, la planta esta inactiva.");
+        }
+
+        if (fh.isBefore(fechaFuncionamiento)) {
+            throw new IllegalStateException("Fecha invalida, es anterior al funcionamiento de la planta.");
+        }
+        if (monitoreos.containsKey(fh)) {
+            throw new IllegalStateException("Ya hay un monitoreo en esa fecha y hora.");
+        }
+        if (monitoreo.energiaGenerada() > capacidadMaxima) {
+            throw new IllegalStateException("La energia generada no puede ser mayor a la capacidad maxima.");
+        }
+
+        monitoreos.put(fh, monitoreo);
+
+    }
+
+    public int[] incidenciasPorHora() {
+        int[] porHora = new int[24]; // veo la fecha del monitoreo, agarro la hora y sumo las incidencias de ESA
+                                     // hora. Por todas las horas.
+        for (Monitoreo m : monitoreos.values()) {
+            porHora[m.fechaHora().getHour()] += m.incidencias(); // sumo
+        }
+        return porHora;
+
+    }
+
     @Override
     public String toString() {
         String estadoTexto = this.estado ? "ACTIVA" : "INACTIVA";
-        return this.nombre + " (" + estadoTexto + "): " + this.fechaFuncionamiento + "T00:00:00";
+        return this.nombre + " (" + estadoTexto + "): " + this.fechaFuncionamiento.format(FORMATO_FECHA);
     }
 }

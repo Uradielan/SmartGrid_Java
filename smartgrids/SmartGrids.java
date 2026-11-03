@@ -76,7 +76,7 @@ public class SmartGrids implements ISmartGrids {
             double superficieCubierta, int cantidadPaneles, double horasRadiacionDiaria) {
 
         Planta planta = new PlantaSolar(nombre, direccion, capacidadMaxima,
-                fechaHora(fechaHoraPuestaEnFuncionamiento).toLocalDate(), fuentePrimaria, eficienciaPromedio,
+                fechaHora(fechaHoraPuestaEnFuncionamiento), fuentePrimaria, eficienciaPromedio,
                 superficieCubierta, cantidadPaneles, horasRadiacionDiaria);
 
         if (plantas.containsKey(planta.nombre())) {
@@ -90,7 +90,7 @@ public class SmartGrids implements ISmartGrids {
             String fechaHoraPuestaEnFuncionamiento, String fuentePrimaria, double eficienciaPromedio,
             int cantidadAerogeneradores, double alturaTorres, double velocidadMinimaViento) {
         Planta planta = new PlantaEolica(nombre, direccion, capacidadMaxima,
-                fechaHora(fechaHoraPuestaEnFuncionamiento).toLocalDate(), fuentePrimaria, eficienciaPromedio,
+                fechaHora(fechaHoraPuestaEnFuncionamiento), fuentePrimaria, eficienciaPromedio,
                 cantidadAerogeneradores, alturaTorres, velocidadMinimaViento);
         if (plantas.containsKey(planta.nombre())) {
             throw new IllegalArgumentException("Ya existe una planta con el nombre: " + planta.nombre());
@@ -103,7 +103,7 @@ public class SmartGrids implements ISmartGrids {
             String fechaHoraPuestaEnFuncionamiento, String fuentePrimaria, double eficienciaPromedio,
             int cantidadTurbinas, double capacidadEmbalse) {
         Planta planta = new PlantaHidraulica(nombre, direccion, capacidadMaxima,
-                fechaHora(fechaHoraPuestaEnFuncionamiento).toLocalDate(), fuentePrimaria, eficienciaPromedio,
+                fechaHora(fechaHoraPuestaEnFuncionamiento), fuentePrimaria, eficienciaPromedio,
                 cantidadTurbinas, capacidadEmbalse);
         if (plantas.containsKey(planta.nombre())) {
             throw new IllegalArgumentException("Ya existe una planta con el nombre: " + planta.nombre());
@@ -116,7 +116,7 @@ public class SmartGrids implements ISmartGrids {
             String fechaHoraPuestaEnFuncionamiento, String tipoCombustible, double objetivoEmisionesCo2PorHora,
             double capacidadAlmacenamientoCombustible) {
         Planta planta = new PlantaTermica(nombre, direccion, capacidadMaxima,
-                fechaHora(fechaHoraPuestaEnFuncionamiento).toLocalDate(), tipoCombustible,
+                fechaHora(fechaHoraPuestaEnFuncionamiento), tipoCombustible,
                 objetivoEmisionesCo2PorHora, capacidadAlmacenamientoCombustible);
         if (plantas.containsKey(planta.nombre())) {
             throw new IllegalArgumentException("Ya existe una planta con el nombre: " + planta.nombre());
