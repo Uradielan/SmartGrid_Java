@@ -240,12 +240,12 @@ public class SmartGrids implements ISmartGrids {
         sb.append("Plantas Eolicas: Horas con poco viento\n");
         for (Planta planta : plantas.values()) {
             if (planta.esEolica()) {
-                List<Integer> horas = planta.horasSinVientoMinimo();
+                Map<Integer, Double> horas = planta.horasSinVientoMinimo();
                 if (!horas.isEmpty()) {
                     sb.append("- ").append(planta.nombre()).append(": ").append(((PlantaEolica) planta).vientoMinimo()).append(" m/s\n");
-                    for (Integer hora : horas) {
-                        sb.append("       ").append(String.format("%02d", hora)).append(": ")
-                                .append(((PlantaEolica) planta).horasSinVientoMinimo()).append(" m/s\n");
+                    for (Map.Entry<Integer, Double> e: horas.entrySet()) {
+                        sb.append("       ").append(String.format("%02d", e.getKey())).append(": ")
+                        	.append(e.getValue()).append(" m/s\n");
                     }
                 }
             }

@@ -5,9 +5,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
+import java.util.Iterator;
 
 public abstract class Planta {
     private String nombre;
@@ -108,7 +107,7 @@ public abstract class Planta {
         return false;
     }
 
-    public List<Integer> horasSinVientoMinimo() {
+    public Map<Integer, Double> horasSinVientoMinimo() {
         throw new UnsupportedOperationException("La planta " + nombre + " no es eólica");
     }
 
@@ -140,18 +139,23 @@ public abstract class Planta {
         activa = true;
     }
 
+    //======================
     public int limpiarMonitoreosSinDatos() {
-        List<LocalDateTime> eliminarDato = new ArrayList<>();
-        for (Map.Entry<LocalDateTime, Monitoreo> entry : monitoreos.entrySet()) {
-            if (entry.getValue().energiaGenerada() == 0 && entry.getValue().incidencias() == 0) {
-                eliminarDato.add(entry.getKey());
-            }
-        }
-        for (LocalDateTime fecha : eliminarDato) {
-            monitoreos.remove(fecha);
-        }
-        return eliminarDato.size();
+    	int borrados = 0;
+    	
+    	Iterator<Monitoreo> it  = monitoreos.values().iterator();
+    	
+    	while (it.hasNext()) {
+    		Monitoreo m = it.next();
+    		if (m.sinDatos()) {
+    			it.remove();
+    			borrados ++;
+    		}
+    	}
+
+       return borrados;
     }
+    //======================
 
     public boolean estuvoInactivaEn(LocalDateTime momento) { // estuvo inactiva a esta hora?
         for (PeriodoInactividad p : periodosInactividad) {

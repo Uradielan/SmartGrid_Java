@@ -1,10 +1,8 @@
 package smartgrids;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.Map;
+import java.util.TreeMap;
 
 //1. Cumple el IREP de PlantaRenovable.
 //2. cantidadAerogeneradores > 0.
@@ -50,19 +48,37 @@ public class PlantaEolica extends PlantaRenovable {
     public double vientoMinimo() {
 		return vientoMinimo;
 	}
-
     @Override
-    public List<Integer> horasSinVientoMinimo() {
-        Set<Integer> horas = new TreeSet<>();
-        for (Monitoreo m : monitoreos.values()) {
-            if (m instanceof MonitoreoEolico) {
-                MonitoreoEolico me = (MonitoreoEolico) m;
-                if (me.velocidadViento() < this.vientoMinimo) {
-                    horas.add(me.fechaHora().getHour());
-                }
-            }
+    public boolean esEolica() {
+        return true;
+    }
+    
+    @Override 
+    public Map<Integer, Double> horasSinVientoMinimo() { 
+    	TreeMap<Integer, Double> maxPorHora = new TreeMap<>();
+        
+        for (Monitoreo m : monitoreos.values()) { //recorro los monitoreos
+        	if (m instanceof MonitoreoEolico) {
+        		MonitoreoEolico me = (MonitoreoEolico) m;
+        		int h = me.fechaHora().getHour(); //hora
+        		double v = me.velocidadViento(); //viento
+        		
+        		if (!maxPorHora.containsKey(h) || v > maxPorHora.get(h)) {
+        			maxPorHora.put(h, v); //guardo max.
+        		}
+        	}
         }
-        return new ArrayList<>(horas);
+        TreeMap<Integer, Double> resultado = new TreeMap<>(); 
+        for (Map.Entry<Integer, Double> e : maxPorHora.entrySet()) { //recorro el mapa de maximos.
+        	int hora = e.getKey();	
+        	double max = e.getValue();//viento maximo
+
+        	if (max < vientoMinimo) {
+        		resultado.put(hora, max); //si el maximo es menor al vientoMinimo, esa hora nunca supero vientoMinimo. la cuento xd
+        	}
+
+        }
+        return resultado;
     }
 
     //MONITOREO======================
