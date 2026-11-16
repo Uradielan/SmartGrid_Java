@@ -212,9 +212,12 @@ public class SmartGrids implements ISmartGrids {
 
     @Override
     public int[] histogramaCumplimiento(String nombre, String fechaDesde, String fechaHasta) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'histogramaCumplimiento'");
-    }
+        Planta planta = this.plantas.get(nombre);
+        if (planta == null) {
+        	throw new IllegalArgumentException("Esta planta no exise: " + nombre);
+        }
+        return planta.histograma(LocalDate.parse(fechaDesde), LocalDate.parse(fechaHasta));//le paso las fechas
+    }   //con el parse los tansformo en fechas
 
     @Override
     public Map<String, Integer> plantasRenovablesPorFuente() {
