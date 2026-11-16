@@ -128,7 +128,7 @@ public class SmartGrids implements ISmartGrids {
     public List<String> consultarPlantas() {
         List<String> lista = new ArrayList<>();
         for (Planta planta : this.plantas.values()) {
-            lista.add(planta.toString());
+            lista.add(planta.detalle());
         }
         return lista;
     }
@@ -146,7 +146,7 @@ public class SmartGrids implements ISmartGrids {
         if (planta == null) {
             throw new IllegalArgumentException("La planta no existe: " + nombre);
         }
-        planta.cambiarEstado(true);
+        planta.activar(fechaHora(fechaHora));
 
     }
 
@@ -163,7 +163,7 @@ public class SmartGrids implements ISmartGrids {
     @Override
     public boolean estaActiva(String nombre) {
         Planta planta = this.plantas.get(nombre);
-        return planta != null && planta.consultarEstado();
+        return planta != null && planta.estaActiva();
     }
 
     @Override

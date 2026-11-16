@@ -14,7 +14,7 @@ public abstract class Planta {
     private String direccion;
     private double capacidadMaxima;
     private LocalDateTime fechaFuncionamiento;
-    private boolean estado;
+    private boolean activa;
     protected HashMap<LocalDateTime, Monitoreo> monitoreos;
     private ArrayList<PeriodoInactividad> periodosInactividad;
     private static final DateTimeFormatter FORMATO_FECHA = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
@@ -36,7 +36,7 @@ public abstract class Planta {
         this.direccion = direccion;
         this.capacidadMaxima = capacidadMaxima;
         this.fechaFuncionamiento = fechaFuncionamiento;
-        this.estado = true;
+        this.activa = true;
         this.monitoreos = new HashMap<>();
         this.periodosInactividad = new ArrayList<>();
     }
@@ -53,12 +53,8 @@ public abstract class Planta {
         return capacidadMaxima;
     }
 
-    public void cambiarEstado(boolean nuevoEstado) {
-        this.estado = nuevoEstado;
-    }
-
-    public boolean consultarEstado() {
-        return estado;
+    public boolean estaActiva() {
+        return activa;
     }
 
     public abstract boolean esRenovable();
@@ -94,19 +90,6 @@ public abstract class Planta {
         return total;
     }
 
-    public int incidencias(LocalDateTime fechaHora) {
-        Monitoreo m = monitoreos.get(fechaHora);
-        return (m != null) ? m.incidencias() : 0;
-    }
-
-    public boolean cumplioCuota(LocalDateTime fechaHora) {
-        Monitoreo m = monitoreos.get(fechaHora);
-        return m != null && cumpleCuota(m);
-    }
-
-    public Map<Integer, Integer> histograma(LocalDateTime desde, LocalDateTime hasta) {
-        throw new IllegalStateException("Falta implementar histograma en la clase hija correspondiente");
-    }
 
     public boolean nuncaCumplioCuota() {
         for (Monitoreo m : monitoreos.values()) {
@@ -134,7 +117,7 @@ public abstract class Planta {
         if (momento == null) {
             throw new IllegalArgumentException("Se necesita un tiempo valido, fecha y hora.");
         }
-        if (!estado) {
+        if (!activa) {
             throw new IllegalStateException("No se puede desactivar, ya esta inactiva.");
         }
         if (momento.isBefore(fechaFuncionamiento)) {
@@ -142,19 +125,19 @@ public abstract class Planta {
         }
 
         periodosInactividad.add(new PeriodoInactividad(momento)); // pum la desactivo.
-        estado = false;
+        activa = false;
     }
 
     public void activar(LocalDateTime momento) {
         if (momento == null) {
             throw new IllegalArgumentException("Se necesita un tiempo valido, fecha y hora.");
         }
-        if (estado) {
+        if (activa) {
             throw new IllegalStateException("No se puede activar, ya esta activa.");
         }
 
         ((PeriodoInactividad) periodosInactividad.get(periodosInactividad.size() - 1)).cerrar(momento);
-        estado = true;
+        activa = true;
     }
 
     public int limpiarMonitoreosSinDatos() {
@@ -183,7 +166,7 @@ public abstract class Planta {
 
         LocalDateTime fh = monitoreo.fechaHora(); // fechaHora
 
-        if (!estado) {
+        if (!activa) {
             throw new IllegalStateException("No se puede monitorear, la planta esta inactiva.");
         }
 
@@ -211,9 +194,55 @@ public abstract class Planta {
 
     }
 
+    //==============Histograma
+    public int[] histograma(LocalDate inicio, LocalDate fin) {
+    	if (inicio == null || fin == null) {
+            throw new IllegalArgumentException("Ingrese fechas de inicio y fin.");
+    	}
+    	
+    	if (inicio.isAfter(fin)){
+    		throw new IllegalArgumentException("Inicio no puede ser despues de fin.");
+    	}
+        
+
+        int[] hist = new int[24];  
+        
+        LocalDate dia = inicio;
+     
+        while (!dia.isAfter(fin)) { //arranco desde el primer dia y voy hasta pasarme del fin.
+        	
+        	for (int h = 0; h < 24; h++){ //voy por todas las horas del dia
+        		Monitoreo m = monitoreos.get(dia.atTime(h, 0));//monitoreo de esa fecha y hora.
+        		
+        		if (m != null && cumpleCuota(m)){
+        			hist[h]++; //si hay monitoreo y cumple la cuota, va al histograma.
+        		}
+        	}
+
+        	dia = dia.plusDays(1); 
+        }
+
+          
+        return hist;
+    }
+    
+    
+    //==============Histograma
+    
+    
+    
+   
+    public String detalle() {
+        String estadoTexto = activa ? "ACTIVA" : "INACTIVA";
+        return nombre + " (" + estadoTexto + "): " + fechaFuncionamiento.format(FORMATO_FECHA);
+    }
+
     @Override
     public String toString() {
-        String estadoTexto = this.estado ? "ACTIVA" : "INACTIVA";
-        return this.nombre + " (" + estadoTexto + "): " + this.fechaFuncionamiento.format(FORMATO_FECHA);
+        return detalle()
+                +" -Direccion: " + direccion
+                +" -Capacidad: " + capacidadMaxima
+                +" -Monitoreos: " + monitoreos.size()
+                +" -Periodos inactivos: " + periodosInactividad.size();
     }
 }

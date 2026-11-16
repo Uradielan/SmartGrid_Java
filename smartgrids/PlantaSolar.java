@@ -61,10 +61,10 @@ public class PlantaSolar extends PlantaRenovable {
     }
     // MONITOREO======================
 
-    // @Override
-    // public String toString() {
-    //     return super.toString() + "-Superficie Cubierta: " + superficieCubierta +
-    //             " -Cantidad de paneles: " + cantidadPaneles +
-    //             " -Horas de radiacion: " + horasRadiacion;
-    // }
+     @Override
+     public String toString() {
+         return super.toString() + "-Superficie Cubierta: " + superficieCubierta +
+                 " -Cantidad de paneles: " + cantidadPaneles +
+                 " -Horas de radiacion: " + horasRadiacion;
+     }
 }

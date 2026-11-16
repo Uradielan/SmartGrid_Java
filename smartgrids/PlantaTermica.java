@@ -67,7 +67,7 @@ public class PlantaTermica extends Planta {
         boolean cumpleEnergia = monitoreo.energiaGenerada() >= cuotaEsperada();
         if (monitoreo instanceof MonitoreoTermico) {
             MonitoreoTermico mt = (MonitoreoTermico) monitoreo;
-            return cumpleEnergia && (mt.CO2Generado() <= this.objetivoCO2);
+            return cumpleEnergia && (mt.CO2Generado() < this.objetivoCO2);
         }
         return cumpleEnergia;
     }
@@ -84,10 +84,10 @@ public class PlantaTermica extends Planta {
     }
     // MONITOREO======================
 
-    // @Override
-    // public String toString() {
-    //     return super.toString() + "-Tipo de combustible: " + tipoCombustible +
-    //             " -Objetivo de emisiones de CO2: " + objetivoCO2 +
-    //             " -Almacenamiento: " + almacenamiento;
-    // }
+     @Override
+     public String toString() {
+         return super.toString() + "-Tipo de combustible: " + tipoCombustible +
+                 " -Objetivo de emisiones de CO2: " + objetivoCO2 +
+                 " -Almacenamiento: " + almacenamiento;
+     }
 }

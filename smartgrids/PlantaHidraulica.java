@@ -45,9 +45,9 @@ public class PlantaHidraulica extends PlantaRenovable {
     }
     //MONITOREO======================
     
-    // @Override
-    // public String toString() {
-		// return super.toString() + "-Cantidad de turbinas: " + cantidadTurbinas + 
-		// 						  " -Capacidad del embalse: " + capacidadEmbalse;
-    // }
+     @Override
+     public String toString() {
+		 return super.toString() + "-Cantidad de turbinas: " + cantidadTurbinas + 
+		 						  " -Capacidad del embalse: " + capacidadEmbalse;
+     }
 }

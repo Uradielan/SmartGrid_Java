@@ -48,8 +48,8 @@ public abstract class PlantaRenovable extends Planta {
         return capacidadMaxima() * eficienciaPromedio;
     }
 
-    // @Override
-    // public String toString() {
-    //     return super.toString() + "-Fuente: " + fuentePrimaria + " -Eficiencia:" + eficienciaPromedio;
-    // }
+     @Override
+     public String toString() {
+         return super.toString() + "-Fuente: " + fuentePrimaria + " -Eficiencia:" + eficienciaPromedio;
+     }
 }

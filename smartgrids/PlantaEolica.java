@@ -73,10 +73,10 @@ public class PlantaEolica extends PlantaRenovable {
     }
     //MONITOREO======================
 
-    // @Override
-    // public String toString() {
-	// 	return super.toString() + "-Cantidad de aerogeneradores: " + cantidadAerogeneradores + 
-	// 							  " -Altura de torres: " + alturaTorres +
-	// 							  " -Viento minimo: " + vientoMinimo;
-    // }
+     @Override
+     public String toString() {
+	 	return super.toString() + "-Cantidad de aerogeneradores: " + cantidadAerogeneradores + 
+	 							  " -Altura de torres: " + alturaTorres +
+	 							  " -Viento minimo: " + vientoMinimo;
+     }
 }
