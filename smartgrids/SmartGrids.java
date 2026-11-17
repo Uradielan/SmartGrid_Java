@@ -135,8 +135,11 @@ public class SmartGrids implements ISmartGrids {
 
     @Override
     public double capacidadMinimaCuota(String nombre) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'capacidadMinimaCuota'");
+        Planta planta = this.plantas.get(nombre);
+        if (planta == null) {
+            throw new IllegalArgumentException("La planta no existe: " + nombre);
+        }
+        return planta.cuotaEsperada();
     }
 
     @Override
@@ -206,8 +209,11 @@ public class SmartGrids implements ISmartGrids {
 
     @Override
     public int[] incidenciasPorHora(String nombre) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'incidenciasPorHora'");
+        Planta planta = this.plantas.get(nombre);
+        if (planta == null) {
+            throw new IllegalArgumentException("La planta no existe: " + nombre);
+        }
+        return planta.incidenciasPorHora();
     }
 
     @Override
@@ -233,8 +239,13 @@ public class SmartGrids implements ISmartGrids {
 
     @Override
     public List<String> plantasQueNuncaCumplieronCuota() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'plantasQueNuncaCumplieronCuota'");
+        List<String> resultado = new ArrayList<>();
+        for (Planta planta : plantas.values()) {
+            if (planta.nuncaCumplioCuota()) {
+                resultado.add(planta.nombre());
+            }
+        }
+        return resultado;
     }
 
     @Override
@@ -267,14 +278,26 @@ public class SmartGrids implements ISmartGrids {
 
     @Override
     public List<String> plantasOrdenadasPorEnergiaGenerada() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'plantasOrdenadasPorEnergiaGenerada'");
+        List<Planta> listaPlantas = new ArrayList<>(plantas.values());
+        listaPlantas.sort(Comparator.comparingDouble(Planta::totalGenerado).reversed());
+
+        List<String> resultado = new ArrayList<>();
+        for (Planta planta : listaPlantas) {
+            resultado.add(planta.nombre() + ": " + planta.totalGenerado());
+        }
+        return resultado;
     }
 
     @Override
     public List<String> plantasInactivasEn(String fechaHora) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'plantasInactivasEn'");
+        LocalDateTime momento = fechaHora(fechaHora);
+        List<String> resultado = new ArrayList<>();
+        for (Planta planta : plantas.values()) {
+            if (planta.estuvoInactivaEn(momento)) {
+                resultado.add(planta.nombre());
+            }
+        }
+        return resultado;
     }
 
     // ------------------------------------------------------ toString
